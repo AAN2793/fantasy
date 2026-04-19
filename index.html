@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fantasy Tracker</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #030712;
+    color: #f3f4f6;
+    min-height: 100vh;
+  }
+  button { cursor: pointer; font-family: inherit; border: none; }
+  input, select { font-family: inherit; }
+  .app { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #1f2937;
+  }
+  .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: #60a5fa; }
+  .week-badge {
+    background: #1e3a8a; color: #bfdbfe; padding: 6px 12px;
+    border-radius: 6px; font-size: 12px; font-weight: 600;
+  }
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #1f2937;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 10px 16px; background: transparent; color: #9ca3af;
+    font-size: 14px; font-weight: 600; border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .tab:hover { color: #f3f4f6; }
+  .tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+  .card {
+    background: #111827; border: 1px solid #1f2937; border-radius: 12px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .card h2 {
+    font-size: 12px; font-weight: 700; letter-spacing: 1px;
+    color: #9ca3af; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+    padding: 24px; border-radius: 12px; margin-bottom: 16px;
+  }
+  .hero-label { font-size: 11px; color: #93c5fd; font-weight: 700; letter-spacing: 1.5px; }
+  .hero-name { font-size: 28px; font-weight: 800; color: #fff; margin-top: 6px; }
+  .hero-stats { display: flex; gap: 28px; margin-top: 14px; flex-wrap: wrap; }
+  .hero-stat-label { font-size: 10px; color: #93c5fd; letter-spacing: 1px; font-weight: 600; }
+  .hero-stat-val { font-size: 22px; font-weight: 800; color: #fff; margin-top: 2px; }
+  .player-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid #1f2937; font-size: 14px;
+  }
+  .player-row:last-child { border-bottom: none; }
+  .slot-label {
+    width: 44px; font-size: 10px; font-weight: 700; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .pos-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 5px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px; min-width: 34px; text-align: center;
+  }
+  .pos-QB { background: #ef444422; color: #f87171; }
+  .pos-RB { background: #22c55e22; color: #4ade80; }
+  .pos-WR { background: #3b82f622; color: #60a5fa; }
+  .pos-TE { background: #f59e0b22; color: #fbbf24; }
+  .pos-K  { background: #a855f722; color: #c084fc; }
+  .pos-DEF{ background: #6b728022; color: #9ca3af; }
+  .status-badge {
+    padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600;
+  }
+  .status-Questionable { background: #f59e0b22; color: #fbbf24; }
+  .status-IR, .status-Out { background: #ef444422; color: #f87171; }
+  .player-name { flex: 1; min-width: 0; }
+  .player-name .n { font-weight: 600; color: #f3f4f6; }
+  .player-name .t { font-size: 11px; color: #6b7280; }
+  .player-stat { text-align: right; min-width: 56px; }
+  .player-stat .v { font-weight: 700; font-size: 14px; }
+  .player-stat .l { font-size: 10px; color: #6b7280; }
+  .matchup-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px; border-bottom: 1px solid #1f2937;
+  }
+  .matchup-row:last-child { border-bottom: none; }
+  .matchup-team { flex: 1; }
+  .matchup-team.right { text-align: right; }
+  .matchup-team .n { font-weight: 600; color: #f3f4f6; font-size: 14px; }
+  .matchup-team .o { font-size: 11px; color: #6b7280; }
+  .matchup-score { font-size: 22px; font-weight: 800; padding: 0 16px; }
+  .win { color: #22c55e; }
+  .lose { color: #ef4444; }
+  .vs { color: #6b7280; font-size: 12px; font-weight: 600; padding: 0 8px; }
+  .standings-table { width: 100%; border-collapse: collapse; }
+  .standings-table th {
+    text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.5px; color: #9ca3af; text-transform: uppercase;
+    border-bottom: 1px solid #1f2937;
+  }
+  .standings-table td {
+    padding: 12px; border-bottom: 1px solid #1f2937; font-size: 14px;
+  }
+  .standings-table tr:last-child td { border-bottom: none; }
+  .standings-table .rank {
+    width: 24px; height: 24px; border-radius: 50%; background: #1f2937;
+    color: #9ca3af; font-weight: 700; font-size: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .standings-table .rank.top { background: #fbbf24; color: #000; }
+  .standings-table .my-row { background: #1e3a8a22; }
+  .filters {
+    display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 6px 12px; background: #1f2937; color: #9ca3af;
+    border-radius: 6px; font-size: 12px; font-weight: 600;
+  }
+  .filter-btn.active { background: #3b82f6; color: #fff; }
+  .search-input {
+    width: 100%; padding: 10px 14px; background: #1f2937;
+    border: 1px solid #374151; border-radius: 8px; color: #f3f4f6;
+    font-size: 14px; margin-bottom: 12px;
+  }
+  .search-input:focus { outline: none; border-color: #3b82f6; }
+  .watch-btn {
+    padding: 6px 10px; background: #1f2937; color: #9ca3af;
+    border-radius: 6px; font-size: 11px; font-weight: 600;
+  }
+  .watch-btn.watched { background: #fbbf24; color: #000; }
+  .empty {
+    text-align: center; padding: 40px 20px; color: #6b7280; font-size: 14px;
+  }
+  .footer {
+    margin-top: 40px; padding: 20px 0; border-top: 1px solid #1f2937;
+    text-align: center; color: #6b7280; font-size: 12px;
+  }
+  @media (max-width: 640px) {
+    .app { padding: 14px; }
+    .hero-name { font-size: 22px; }
+    .player-stat { min-width: 44px; }
+    .player-row { padding: 10px 8px; gap: 8px; }
+    .slot-label { width: 36px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useMemo } = React;
+
+// ============ DATA ============
+const LEAGUE = { name: "Kos's Fantasy League", teams: 10, scoring: "PPR", week: 12 };
+
+const TEAMS = [
+  { id:1, name:"Gridiron Goblins", owner:"Kos",    w:8, l:3, pf:1342.5, pa:1188.2 },
+  { id:2, name:"End Zone Elite",   owner:"Mike",   w:9, l:2, pf:1401.8, pa:1154.6 },
+  { id:3, name:"Touchdown Titans", owner:"Sarah",  w:7, l:4, pf:1289.3, pa:1220.9 },
+  { id:4, name:"Blitz Brigade",    owner:"Dan",    w:6, l:5, pf:1256.1, pa:1248.7 },
+  { id:5, name:"Hail Mary Heroes", owner:"Jess",   w:6, l:5, pf:1234.8, pa:1265.4 },
+  { id:6, name:"Pigskin Pirates",  owner:"Tom",    w:5, l:6, pf:1198.6, pa:1278.3 },
+  { id:7, name:"Sack Attack",      owner:"Chris",  w:5, l:6, pf:1187.2, pa:1289.1 },
+  { id:8, name:"Red Zone Raiders", owner:"Ash",    w:4, l:7, pf:1156.9, pa:1298.5 },
+  { id:9, name:"Fourth & Fury",    owner:"Pat",    w:3, l:8, pf:1098.4, pa:1312.8 },
+  { id:10,name:"Punt Patrol",      owner:"Jordan", w:3, l:8, pf:1067.5, pa:1324.6 },
+];
+
+const PLAYERS = [
+  { id:101,n:"Josh Allen",pos:"QB",tm:"BUF",ytd:298.4,avg:27.1,proj:24.8,st:"Healthy" },
+  { id:102,n:"Lamar Jackson",pos:"QB",tm:"BAL",ytd:312.6,avg:28.4,proj:26.2,st:"Healthy" },
+  { id:103,n:"Jalen Hurts",pos:"QB",tm:"PHI",ytd:276.8,avg:25.2,proj:23.5,st:"Healthy" },
+  { id:104,n:"Patrick Mahomes",pos:"QB",tm:"KC",ytd:268.9,avg:24.4,proj:22.9,st:"Healthy" },
+  { id:105,n:"Joe Burrow",pos:"QB",tm:"CIN",ytd:254.3,avg:23.1,proj:22.0,st:"Questionable" },
+  { id:106,n:"Jayden Daniels",pos:"QB",tm:"WAS",ytd:261.7,avg:23.8,proj:21.6,st:"Healthy" },
+  { id:107,n:"Baker Mayfield",pos:"QB",tm:"TB",ytd:242.5,avg:22.0,proj:20.3,st:"Healthy" },
+  { id:108,n:"Jared Goff",pos:"QB",tm:"DET",ytd:238.1,avg:21.6,proj:19.8,st:"Healthy" },
+  { id:109,n:"C.J. Stroud",pos:"QB",tm:"HOU",ytd:221.4,avg:20.1,proj:19.2,st:"Healthy" },
+  { id:110,n:"Dak Prescott",pos:"QB",tm:"DAL",ytd:198.6,avg:19.8,proj:18.5,st:"Healthy" },
+
+  { id:201,n:"Saquon Barkley",pos:"RB",tm:"PHI",ytd:286.3,avg:26.0,proj:22.4,st:"Healthy" },
+  { id:202,n:"Derrick Henry",pos:"RB",tm:"BAL",ytd:268.7,avg:24.4,proj:21.8,st:"Healthy" },
+  { id:203,n:"Bijan Robinson",pos:"RB",tm:"ATL",ytd:251.2,avg:22.8,proj:20.1,st:"Healthy" },
+  { id:204,n:"Jahmyr Gibbs",pos:"RB",tm:"DET",ytd:246.8,avg:22.4,proj:19.6,st:"Healthy" },
+  { id:205,n:"Kyren Williams",pos:"RB",tm:"LAR",ytd:228.9,avg:20.8,proj:18.3,st:"Healthy" },
+  { id:206,n:"De'Von Achane",pos:"RB",tm:"MIA",ytd:224.5,avg:20.4,proj:18.0,st:"Healthy" },
+  { id:207,n:"Josh Jacobs",pos:"RB",tm:"GB",ytd:219.3,avg:19.9,proj:17.5,st:"Healthy" },
+  { id:208,n:"Bucky Irving",pos:"RB",tm:"TB",ytd:208.1,avg:18.9,proj:16.8,st:"Healthy" },
+  { id:209,n:"Chase Brown",pos:"RB",tm:"CIN",ytd:201.4,avg:18.3,proj:16.2,st:"Healthy" },
+  { id:210,n:"James Cook",pos:"RB",tm:"BUF",ytd:194.8,avg:17.7,proj:15.9,st:"Healthy" },
+  { id:211,n:"Kenneth Walker III",pos:"RB",tm:"SEA",ytd:186.2,avg:17.0,proj:15.1,st:"Questionable" },
+  { id:212,n:"Breece Hall",pos:"RB",tm:"NYJ",ytd:178.6,avg:16.2,proj:14.8,st:"Healthy" },
+  { id:213,n:"Aaron Jones",pos:"RB",tm:"MIN",ytd:172.4,avg:15.7,proj:14.3,st:"Healthy" },
+  { id:214,n:"Tony Pollard",pos:"RB",tm:"TEN",ytd:168.9,avg:15.4,proj:13.9,st:"Healthy" },
+  { id:215,n:"David Montgomery",pos:"RB",tm:"DET",ytd:164.2,avg:14.9,proj:13.5,st:"Healthy" },
+
+  { id:301,n:"Ja'Marr Chase",pos:"WR",tm:"CIN",ytd:298.7,avg:27.2,proj:23.1,st:"Healthy" },
+  { id:302,n:"Justin Jefferson",pos:"WR",tm:"MIN",ytd:272.4,avg:24.8,proj:21.4,st:"Healthy" },
+  { id:303,n:"CeeDee Lamb",pos:"WR",tm:"DAL",ytd:258.9,avg:23.5,proj:20.6,st:"Healthy" },
+  { id:304,n:"Amon-Ra St. Brown",pos:"WR",tm:"DET",ytd:246.3,avg:22.4,proj:19.8,st:"Healthy" },
+  { id:305,n:"Puka Nacua",pos:"WR",tm:"LAR",ytd:238.6,avg:21.7,proj:19.2,st:"Healthy" },
+  { id:306,n:"A.J. Brown",pos:"WR",tm:"PHI",ytd:228.1,avg:20.7,proj:18.4,st:"Healthy" },
+  { id:307,n:"Nico Collins",pos:"WR",tm:"HOU",ytd:219.8,avg:20.0,proj:17.9,st:"Healthy" },
+  { id:308,n:"Drake London",pos:"WR",tm:"ATL",ytd:214.2,avg:19.5,proj:17.3,st:"Healthy" },
+  { id:309,n:"Malik Nabers",pos:"WR",tm:"NYG",ytd:208.5,avg:19.0,proj:16.8,st:"Healthy" },
+  { id:310,n:"Garrett Wilson",pos:"WR",tm:"NYJ",ytd:201.9,avg:18.4,proj:16.2,st:"Healthy" },
+  { id:311,n:"Brian Thomas Jr.",pos:"WR",tm:"JAX",ytd:196.3,avg:17.8,proj:15.7,st:"Healthy" },
+  { id:312,n:"Terry McLaurin",pos:"WR",tm:"WAS",ytd:192.7,avg:17.5,proj:15.4,st:"Healthy" },
+  { id:313,n:"Tyreek Hill",pos:"WR",tm:"MIA",ytd:188.4,avg:17.1,proj:15.0,st:"Healthy" },
+  { id:314,n:"DK Metcalf",pos:"WR",tm:"SEA",ytd:182.1,avg:16.6,proj:14.5,st:"Healthy" },
+  { id:315,n:"Mike Evans",pos:"WR",tm:"TB",ytd:178.9,avg:16.3,proj:14.2,st:"Healthy" },
+  { id:316,n:"Davante Adams",pos:"WR",tm:"NYJ",ytd:174.6,avg:15.9,proj:13.8,st:"Healthy" },
+  { id:317,n:"Stefon Diggs",pos:"WR",tm:"HOU",ytd:168.3,avg:15.3,proj:13.4,st:"IR" },
+  { id:318,n:"Jaylen Waddle",pos:"WR",tm:"MIA",ytd:162.8,avg:14.8,proj:13.0,st:"Healthy" },
+
+  { id:401,n:"Brock Bowers",pos:"TE",tm:"LV",ytd:218.6,avg:19.9,proj:16.8,st:"Healthy" },
+  { id:402,n:"Trey McBride",pos:"TE",tm:"ARI",ytd:192.4,avg:17.5,proj:14.9,st:"Healthy" },
+  { id:403,n:"George Kittle",pos:"TE",tm:"SF",ytd:186.2,avg:16.9,proj:14.3,st:"Healthy" },
+  { id:404,n:"Travis Kelce",pos:"TE",tm:"KC",ytd:174.8,avg:15.9,proj:13.5,st:"Healthy" },
+  { id:405,n:"Sam LaPorta",pos:"TE",tm:"DET",ytd:162.3,avg:14.8,proj:12.7,st:"Healthy" },
+  { id:406,n:"Mark Andrews",pos:"TE",tm:"BAL",ytd:154.7,avg:14.1,proj:12.1,st:"Healthy" },
+  { id:407,n:"T.J. Hockenson",pos:"TE",tm:"MIN",ytd:142.8,avg:13.0,proj:11.4,st:"Healthy" },
+  { id:408,n:"Jake Ferguson",pos:"TE",tm:"DAL",ytd:128.4,avg:11.7,proj:10.5,st:"Healthy" },
+
+  { id:501,n:"Brandon Aubrey",pos:"K",tm:"DAL",ytd:142.8,avg:13.0,proj:11.0,st:"Healthy" },
+  { id:502,n:"Ka'imi Fairbairn",pos:"K",tm:"HOU",ytd:134.2,avg:12.2,proj:10.5,st:"Healthy" },
+  { id:503,n:"Chris Boswell",pos:"K",tm:"PIT",ytd:132.6,avg:12.1,proj:10.3,st:"Healthy" },
+  { id:504,n:"Harrison Butker",pos:"K",tm:"KC",ytd:128.9,avg:11.7,proj:10.0,st:"Healthy" },
+
+  { id:601,n:"Denver Broncos",pos:"DEF",tm:"DEN",ytd:148.6,avg:13.5,proj:11.2,st:"Healthy" },
+  { id:602,n:"Baltimore Ravens",pos:"DEF",tm:"BAL",ytd:138.4,avg:12.6,proj:10.8,st:"Healthy" },
+  { id:603,n:"Minnesota Vikings",pos:"DEF",tm:"MIN",ytd:132.8,avg:12.1,proj:10.4,st:"Healthy" },
+  { id:604,n:"Pittsburgh Steelers",pos:"DEF",tm:"PIT",ytd:128.2,avg:11.7,proj:10.1,st:"Healthy" },
+];
+
+const ROSTERS = {
+  1:  { st:[102,201,204,301,305,401,208,501,601], bn:[105,211,308,405,502,602] },
+  2:  { st:[101,202,205,302,306,402,212,504,602], bn:[106,213,310,406,503,603] },
+  3:  { st:[103,203,206,303,307,403,210,502,603], bn:[107,214,311,407,504,604] },
+  4:  { st:[104,207,209,304,309,404,215,503,604], bn:[108,312,313,408,501,601] },
+  5:  { st:[106,210,213,308,311,405,207,501,601], bn:[109,215,314,406,503,603] },
+  6:  { st:[107,211,214,310,312,406,209,502,602], bn:[110,315,316,407,504,604] },
+  7:  { st:[108,212,215,313,314,407,206,503,603], bn:[101,317,318,408,501,601] },
+  8:  { st:[109,208,209,311,315,408,214,504,604], bn:[110,212,316,401,502,602] },
+  9:  { st:[110,213,214,316,317,405,205,501,601], bn:[105,215,318,402,503,603] },
+  10: { st:[107,207,215,318,312,406,208,502,602], bn:[108,211,313,403,504,604] },
+};
+
+const MATCHUPS = [
+  { h:1, a:2,  hs:98.4,  as:112.6 },
+  { h:3, a:4,  hs:105.2, as:89.8  },
+  { h:5, a:6,  hs:94.3,  as:101.7 },
+  { h:7, a:8,  hs:87.6,  as:92.1  },
+  { h:9, a:10, hs:79.4,  as:84.8  },
+];
+
+const SLOTS = ["QB","RB","RB","WR","WR","TE","FLEX","K","DEF"];
+const MY_TEAM = 1;
+
+const gp = (id) => PLAYERS.find(p => p.id === id);
+const gt = (id) => TEAMS.find(t => t.id === id);
+
+// ============ COMPONENTS ============
+function PlayerRow({ p, slot, onWatch, watched }) {
+  if (!p) return null;
+  return (
+    <div className="player-row">
+      {slot && <div className="slot-label">{slot}</div>}
+      <span className={"pos-badge pos-" + p.pos}>{p.pos}</span>
+      <div className="player-name">
+        <div className="n">{p.n}</div>
+        <div className="t">{p.tm}</div>
+      </div>
+      {p.st !== "Healthy" && <span className={"status-badge status-" + p.st}>{p.st}</span>}
+      <div className="player-stat">
+        <div className="v" style={{color:"#f3f4f6"}}>{p.proj.toFixed(1)}</div>
+        <div className="l">PROJ</div>
+      </div>
+      <div className="player-stat">
+        <div className="v" style={{color:"#60a5fa"}}>{p.ytd.toFixed(1)}</div>
+        <div className="l">YTD</div>
+      </div>
+      {onWatch && (
+        <button className={"watch-btn" + (watched ? " watched" : "")} onClick={() => onWatch(p.id)}>
+          {watched ? "★" : "☆"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function MyTeamView() {
+  const team = gt(MY_TEAM);
+  const r = ROSTERS[MY_TEAM];
+  const starters = r.st.map(gp);
+  const bench = r.bn.map(gp);
+  const projTotal = starters.reduce((s,p) => s + p.proj, 0);
+  const m = MATCHUPS.find(x => x.h === MY_TEAM || x.a === MY_TEAM);
+  const isHome = m.h === MY_TEAM;
+  const myScore = isHome ? m.hs : m.as;
+  const oppScore = isHome ? m.as : m.hs;
+  const opp = gt(isHome ? m.a : m.h);
+  const winning = myScore > oppScore;
+
+  return (
+    <div>
+      <div className="hero">
+        <div className="hero-label">MY TEAM</div>
+        <div className="hero-name">{team.name}</div>
+        <div className="hero-stats">
+          <div>
+            <div className="hero-stat-label">RECORD</div>
+            <div className="hero-stat-val">{team.w}-{team.l}</div>
+          </div>
+          <div>
+            <div className="hero-stat-label">POINTS FOR</div>
+            <div className="hero-stat-val">{team.pf.toFixed(1)}</div>
+          </div>
+          <div>
+            <div className="hero-stat-label">PROJ WEEK {LEAGUE.week}</div>
+            <div className="hero-stat-val">{projTotal.toFixed(1)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>Week {LEAGUE.week} Matchup</h2>
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:14, fontWeight:700}}>{team.name}</div>
+            <div style={{fontSize:30, fontWeight:800}} className={winning ? "win" : "lose"}>
+              {myScore.toFixed(1)}
+            </div>
+          </div>
+          <div className="vs">VS</div>
+          <div style={{flex:1, textAlign:"right"}}>
+            <div style={{fontSize:14, fontWeight:700}}>{opp.name}</div>
+            <div style={{fontSize:30, fontWeight:800}} className={!winning ? "win" : "lose"}>
+              {oppScore.toFixed(1)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card" style={{padding:0}}>
+        <div style={{padding:"14px 16px 10px"}}><h2 style={{margin:0}}>Starters</h2></div>
+        {starters.map((p, i) => <PlayerRow key={i} p={p} slot={SLOTS[i]} />)}
+      </div>
+
+      <div className="card" style={{padding:0}}>
+        <div style={{padding:"14px 16px 10px"}}><h2 style={{margin:0}}>Bench</h2></div>
+        {bench.map((p, i) => <PlayerRow key={i} p={p} slot="BN" />)}
+      </div>
+    </div>
+  );
+}
+
+function StandingsView() {
+  const sorted = [...TEAMS].sort((a, b) => {
+    if (b.w !== a.w) return b.w - a.w;
+    return b.pf - a.pf;
+  });
+  return (
+    <div className="card" style={{padding:0, overflow:"hidden"}}>
+      <table className="standings-table">
+        <thead>
+          <tr>
+            <th style={{width:40}}>#</th>
+            <th>Team</th>
+            <th style={{textAlign:"center"}}>W-L</th>
+            <th style={{textAlign:"right"}}>PF</th>
+            <th style={{textAlign:"right"}}>PA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((t, i) => (
+            <tr key={t.id} className={t.id === MY_TEAM ? "my-row" : ""}>
+              <td><span className={"rank" + (i < 3 ? " top" : "")}>{i + 1}</span></td>
+              <td>
+                <div style={{fontWeight:600}}>{t.name}</div>
+                <div style={{fontSize:11, color:"#6b7280"}}>{t.owner}{t.id === MY_TEAM ? " (you)" : ""}</div>
+              </td>
+              <td style={{textAlign:"center", fontWeight:700}}>{t.w}-{t.l}</td>
+              <td style={{textAlign:"right"}}>{t.pf.toFixed(1)}</td>
+              <td style={{textAlign:"right", color:"#9ca3af"}}>{t.pa.toFixed(1)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function MatchupsView() {
+  return (
+    <div className="card" style={{padding:0}}>
+      <div style={{padding:"14px 16px 10px"}}><h2 style={{margin:0}}>Week {LEAGUE.week} Matchups</h2></div>
+      {MATCHUPS.map((m, i) => {
+        const home = gt(m.h), away = gt(m.a);
+        const homeWin = m.hs > m.as;
+        return (
+          <div key={i} className="matchup-row">
+            <div className="matchup-team">
+              <div className="n">{home.name}</div>
+              <div className="o">{home.owner}</div>
+            </div>
+            <div className={"matchup-score " + (homeWin ? "win" : "lose")}>{m.hs.toFixed(1)}</div>
+            <div className="vs">VS</div>
+            <div className={"matchup-score " + (!homeWin ? "win" : "lose")}>{m.as.toFixed(1)}</div>
+            <div className="matchup-team right">
+              <div className="n">{away.name}</div>
+              <div className="o">{away.owner}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PlayersView({ watchlist, toggleWatch }) {
+  const [filter, setFilter] = useState("ALL");
+  const [search, setSearch] = useState("");
+  const filtered = useMemo(() => {
+    let list = PLAYERS;
+    if (filter !== "ALL") list = list.filter(p => p.pos === filter);
+    if (search) list = list.filter(p => p.n.toLowerCase().includes(search.toLowerCase()));
+    return [...list].sort((a, b) => b.ytd - a.ytd);
+  }, [filter, search]);
+
+  const positions = ["ALL", "QB", "RB", "WR", "TE", "K", "DEF"];
+
+  return (
+    <div>
+      <input
+        className="search-input"
+        placeholder="Search players..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
+      <div className="filters">
+        {positions.map(pos => (
+          <button
+            key={pos}
+            className={"filter-btn" + (filter === pos ? " active" : "")}
+            onClick={() => setFilter(pos)}
+          >{pos}</button>
+        ))}
+      </div>
+      <div className="card" style={{padding:0}}>
+        {filtered.length === 0 ? (
+          <div className="empty">No players match your filters.</div>
+        ) : (
+          filtered.map(p => (
+            <PlayerRow
+              key={p.id}
+              p={p}
+              onWatch={toggleWatch}
+              watched={watchlist.includes(p.id)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function WatchlistView({ watchlist, toggleWatch }) {
+  const players = watchlist.map(gp).filter(Boolean);
+  return (
+    <div>
+      <div className="card">
+        <h2>Watchlist</h2>
+        <div style={{fontSize:13, color:"#9ca3af"}}>
+          Track players you're interested in — even if they're not on your roster.
+        </div>
+      </div>
+      <div className="card" style={{padding:0}}>
+        {players.length === 0 ? (
+          <div className="empty">
+            No players on your watchlist yet.<br />
+            Go to the Players tab and tap ☆ to add one.
+          </div>
+        ) : (
+          players.map(p => (
+            <PlayerRow key={p.id} p={p} onWatch={toggleWatch} watched={true} />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [tab, setTab] = useState("team");
+  const [watchlist, setWatchlist] = useState([]);
+
+  const toggleWatch = (id) => {
+    setWatchlist(wl => wl.includes(id) ? wl.filter(x => x !== id) : [...wl, id]);
+  };
+
+  const tabs = [
+    { id: "team",      label: "My Team" },
+    { id: "matchups",  label: "Matchups" },
+    { id: "standings", label: "Standings" },
+    { id: "players",   label: "Players" },
+    { id: "watchlist", label: "Watchlist" + (watchlist.length ? ` (${watchlist.length})` : "") },
+  ];
+
+  return (
+    <div className="app">
+      <div className="header">
+        <div className="logo">Fantasy<span>Tracker</span></div>
+        <div className="week-badge">Week {LEAGUE.week} • {LEAGUE.scoring}</div>
+      </div>
+      <div className="tabs">
+        {tabs.map(t => (
+          <button
+            key={t.id}
+            className={"tab" + (tab === t.id ? " active" : "")}
+            onClick={() => setTab(t.id)}
+          >{t.label}</button>
+        ))}
+      </div>
+      {tab === "team"      && <MyTeamView />}
+      {tab === "matchups"  && <MatchupsView />}
+      {tab === "standings" && <StandingsView />}
+      {tab === "players"   && <PlayersView watchlist={watchlist} toggleWatch={toggleWatch} />}
+      {tab === "watchlist" && <WatchlistView watchlist={watchlist} toggleWatch={toggleWatch} />}
+      <div className="footer">
+        {LEAGUE.name} • {LEAGUE.teams} teams • {LEAGUE.scoring} scoring • Mock data (Sleeper API integration pending)
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
