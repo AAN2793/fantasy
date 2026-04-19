@@ -142,6 +142,36 @@
     margin-top: 40px; padding: 20px 0; border-top: 1px solid #1f2937;
     text-align: center; color: #6b7280; font-size: 12px;
   }
+  .draft-row {
+    display: flex; align-items: flex-start; gap: 12px; padding: 14px;
+    border-bottom: 1px solid #1f2937;
+  }
+  .draft-row:last-child { border-bottom: none; }
+  .draft-rank {
+    width: 36px; height: 36px; border-radius: 50%; background: #1f2937;
+    color: #9ca3af; font-weight: 800; font-size: 13px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .draft-rank.t1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+  .draft-rank.t2 { background: linear-gradient(135deg, #a78bfa, #8b5cf6); color: #fff; }
+  .draft-rank.t3 { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff; }
+  .draft-rank.t4 { background: #065f46; color: #d1fae5; }
+  .draft-rank.t5 { background: #374151; color: #d1d5db; }
+  .draft-rank.t6 { background: #1f2937; color: #9ca3af; }
+  .draft-rank.t7 { background: #111827; color: #6b7280; border: 1px solid #374151; }
+  .draft-body { flex: 1; min-width: 0; }
+  .draft-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .draft-name { font-weight: 700; font-size: 15px; color: #f3f4f6; }
+  .draft-ytd { font-size: 11px; color: #60a5fa; font-weight: 600; }
+  .draft-note { font-size: 13px; color: #9ca3af; line-height: 1.5; }
+  .tier-banner {
+    padding: 8px 14px; background: #1f2937; color: #d1d5db;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    border-top: 1px solid #374151; border-bottom: 1px solid #374151;
+  }
+  .tier-banner.t1 { background: #422006; color: #fbbf24; }
+  .tier-banner.t2 { background: #2e1065; color: #a78bfa; }
+  .tier-banner.t3 { background: #1e3a8a; color: #60a5fa; }
   @media (max-width: 640px) {
     .app { padding: 14px; }
     .hero-name { font-size: 22px; }
@@ -172,84 +202,111 @@ const TEAMS = [
   { id:10,name:"Punt Patrol",      owner:"Jordan", w:3, l:8, pf:1067.5, pa:1324.6 },
 ];
 
+// Real 2025 NFL season-end PPR stats (weeks 1-18). Source: FantasyPros.
 const PLAYERS = [
-  { id:101,n:"Josh Allen",pos:"QB",tm:"BUF",ytd:298.4,avg:27.1,proj:24.8,st:"Healthy" },
-  { id:102,n:"Lamar Jackson",pos:"QB",tm:"BAL",ytd:312.6,avg:28.4,proj:26.2,st:"Healthy" },
-  { id:103,n:"Jalen Hurts",pos:"QB",tm:"PHI",ytd:276.8,avg:25.2,proj:23.5,st:"Healthy" },
-  { id:104,n:"Patrick Mahomes",pos:"QB",tm:"KC",ytd:268.9,avg:24.4,proj:22.9,st:"Healthy" },
-  { id:105,n:"Joe Burrow",pos:"QB",tm:"CIN",ytd:254.3,avg:23.1,proj:22.0,st:"Questionable" },
-  { id:106,n:"Jayden Daniels",pos:"QB",tm:"WAS",ytd:261.7,avg:23.8,proj:21.6,st:"Healthy" },
-  { id:107,n:"Baker Mayfield",pos:"QB",tm:"TB",ytd:242.5,avg:22.0,proj:20.3,st:"Healthy" },
-  { id:108,n:"Jared Goff",pos:"QB",tm:"DET",ytd:238.1,avg:21.6,proj:19.8,st:"Healthy" },
-  { id:109,n:"C.J. Stroud",pos:"QB",tm:"HOU",ytd:221.4,avg:20.1,proj:19.2,st:"Healthy" },
-  { id:110,n:"Dak Prescott",pos:"QB",tm:"DAL",ytd:198.6,avg:19.8,proj:18.5,st:"Healthy" },
+  // QBs (top 12 finishers)
+  { id:101,n:"Josh Allen",pos:"QB",tm:"BUF",ytd:374.6,avg:22.0,proj:22.8,st:"Healthy" },
+  { id:102,n:"Drake Maye",pos:"QB",tm:"NE",ytd:359.0,avg:21.1,proj:21.8,st:"Healthy" },
+  { id:103,n:"Matthew Stafford",pos:"QB",tm:"LAR",ytd:358.4,avg:21.1,proj:20.2,st:"Healthy" },
+  { id:104,n:"Trevor Lawrence",pos:"QB",tm:"JAC",ytd:350.2,avg:20.6,proj:20.5,st:"Healthy" },
+  { id:105,n:"Dak Prescott",pos:"QB",tm:"DAL",ytd:323.8,avg:19.0,proj:19.4,st:"Healthy" },
+  { id:106,n:"Caleb Williams",pos:"QB",tm:"CHI",ytd:323.2,avg:19.0,proj:20.1,st:"Healthy" },
+  { id:107,n:"Bo Nix",pos:"QB",tm:"DEN",ytd:315.8,avg:18.6,proj:19.0,st:"Healthy" },
+  { id:108,n:"Jared Goff",pos:"QB",tm:"DET",ytd:305.1,avg:17.9,proj:18.4,st:"Healthy" },
+  { id:109,n:"Lamar Jackson",pos:"QB",tm:"BAL",ytd:298.4,avg:19.9,proj:23.5,st:"Healthy" },
+  { id:110,n:"Jalen Hurts",pos:"QB",tm:"PHI",ytd:291.2,avg:17.1,proj:21.8,st:"Healthy" },
+  { id:111,n:"Patrick Mahomes",pos:"QB",tm:"KC",ytd:286.4,avg:16.8,proj:21.2,st:"Healthy" },
+  { id:112,n:"Jayden Daniels",pos:"QB",tm:"WAS",ytd:278.3,avg:18.6,proj:21.5,st:"Questionable" },
 
-  { id:201,n:"Saquon Barkley",pos:"RB",tm:"PHI",ytd:286.3,avg:26.0,proj:22.4,st:"Healthy" },
-  { id:202,n:"Derrick Henry",pos:"RB",tm:"BAL",ytd:268.7,avg:24.4,proj:21.8,st:"Healthy" },
-  { id:203,n:"Bijan Robinson",pos:"RB",tm:"ATL",ytd:251.2,avg:22.8,proj:20.1,st:"Healthy" },
-  { id:204,n:"Jahmyr Gibbs",pos:"RB",tm:"DET",ytd:246.8,avg:22.4,proj:19.6,st:"Healthy" },
-  { id:205,n:"Kyren Williams",pos:"RB",tm:"LAR",ytd:228.9,avg:20.8,proj:18.3,st:"Healthy" },
-  { id:206,n:"De'Von Achane",pos:"RB",tm:"MIA",ytd:224.5,avg:20.4,proj:18.0,st:"Healthy" },
-  { id:207,n:"Josh Jacobs",pos:"RB",tm:"GB",ytd:219.3,avg:19.9,proj:17.5,st:"Healthy" },
-  { id:208,n:"Bucky Irving",pos:"RB",tm:"TB",ytd:208.1,avg:18.9,proj:16.8,st:"Healthy" },
-  { id:209,n:"Chase Brown",pos:"RB",tm:"CIN",ytd:201.4,avg:18.3,proj:16.2,st:"Healthy" },
-  { id:210,n:"James Cook",pos:"RB",tm:"BUF",ytd:194.8,avg:17.7,proj:15.9,st:"Healthy" },
-  { id:211,n:"Kenneth Walker III",pos:"RB",tm:"SEA",ytd:186.2,avg:17.0,proj:15.1,st:"Questionable" },
-  { id:212,n:"Breece Hall",pos:"RB",tm:"NYJ",ytd:178.6,avg:16.2,proj:14.8,st:"Healthy" },
-  { id:213,n:"Aaron Jones",pos:"RB",tm:"MIN",ytd:172.4,avg:15.7,proj:14.3,st:"Healthy" },
-  { id:214,n:"Tony Pollard",pos:"RB",tm:"TEN",ytd:168.9,avg:15.4,proj:13.9,st:"Healthy" },
-  { id:215,n:"David Montgomery",pos:"RB",tm:"DET",ytd:164.2,avg:14.9,proj:13.5,st:"Healthy" },
+  // RBs (top 20 finishers)
+  { id:201,n:"Christian McCaffrey",pos:"RB",tm:"SF",ytd:416.6,avg:24.5,proj:22.0,st:"Healthy" },
+  { id:202,n:"Bijan Robinson",pos:"RB",tm:"ATL",ytd:370.8,avg:21.8,proj:20.4,st:"Healthy" },
+  { id:203,n:"Jahmyr Gibbs",pos:"RB",tm:"DET",ytd:366.9,avg:21.6,proj:19.8,st:"Healthy" },
+  { id:204,n:"Jonathan Taylor",pos:"RB",tm:"IND",ytd:362.3,avg:21.3,proj:18.9,st:"Healthy" },
+  { id:205,n:"Saquon Barkley",pos:"RB",tm:"PHI",ytd:298.4,avg:17.6,proj:19.6,st:"Healthy" },
+  { id:206,n:"Derrick Henry",pos:"RB",tm:"BAL",ytd:286.5,avg:16.9,proj:17.8,st:"Healthy" },
+  { id:207,n:"De'Von Achane",pos:"RB",tm:"MIA",ytd:278.2,avg:17.4,proj:17.2,st:"Healthy" },
+  { id:208,n:"Kyren Williams",pos:"RB",tm:"LAR",ytd:268.4,avg:15.8,proj:16.4,st:"Healthy" },
+  { id:209,n:"Bucky Irving",pos:"RB",tm:"TB",ytd:254.8,avg:15.9,proj:16.9,st:"Healthy" },
+  { id:210,n:"Josh Jacobs",pos:"RB",tm:"GB",ytd:248.2,avg:14.6,proj:15.8,st:"Healthy" },
+  { id:211,n:"Chase Brown",pos:"RB",tm:"CIN",ytd:242.6,avg:14.3,proj:15.3,st:"Healthy" },
+  { id:212,n:"James Cook",pos:"RB",tm:"BUF",ytd:238.1,avg:14.0,proj:15.0,st:"Healthy" },
+  { id:213,n:"Kenneth Walker III",pos:"RB",tm:"SEA",ytd:218.4,avg:13.7,proj:14.2,st:"Questionable" },
+  { id:214,n:"Breece Hall",pos:"RB",tm:"NYJ",ytd:214.9,avg:12.6,proj:14.5,st:"Healthy" },
+  { id:215,n:"Aaron Jones",pos:"RB",tm:"MIN",ytd:208.7,avg:12.3,proj:13.4,st:"Healthy" },
+  { id:216,n:"Tony Pollard",pos:"RB",tm:"TEN",ytd:198.2,avg:11.7,proj:12.8,st:"Healthy" },
+  { id:217,n:"Alvin Kamara",pos:"RB",tm:"NO",ytd:194.5,avg:12.2,proj:13.6,st:"Healthy" },
+  { id:218,n:"David Montgomery",pos:"RB",tm:"DET",ytd:186.4,avg:11.0,proj:12.2,st:"Healthy" },
+  { id:219,n:"James Conner",pos:"RB",tm:"ARI",ytd:178.3,avg:13.7,proj:13.8,st:"Healthy" },
+  { id:220,n:"D'Andre Swift",pos:"RB",tm:"CHI",ytd:172.6,avg:10.2,proj:11.5,st:"Healthy" },
 
-  { id:301,n:"Ja'Marr Chase",pos:"WR",tm:"CIN",ytd:298.7,avg:27.2,proj:23.1,st:"Healthy" },
-  { id:302,n:"Justin Jefferson",pos:"WR",tm:"MIN",ytd:272.4,avg:24.8,proj:21.4,st:"Healthy" },
-  { id:303,n:"CeeDee Lamb",pos:"WR",tm:"DAL",ytd:258.9,avg:23.5,proj:20.6,st:"Healthy" },
-  { id:304,n:"Amon-Ra St. Brown",pos:"WR",tm:"DET",ytd:246.3,avg:22.4,proj:19.8,st:"Healthy" },
-  { id:305,n:"Puka Nacua",pos:"WR",tm:"LAR",ytd:238.6,avg:21.7,proj:19.2,st:"Healthy" },
-  { id:306,n:"A.J. Brown",pos:"WR",tm:"PHI",ytd:228.1,avg:20.7,proj:18.4,st:"Healthy" },
-  { id:307,n:"Nico Collins",pos:"WR",tm:"HOU",ytd:219.8,avg:20.0,proj:17.9,st:"Healthy" },
-  { id:308,n:"Drake London",pos:"WR",tm:"ATL",ytd:214.2,avg:19.5,proj:17.3,st:"Healthy" },
-  { id:309,n:"Malik Nabers",pos:"WR",tm:"NYG",ytd:208.5,avg:19.0,proj:16.8,st:"Healthy" },
-  { id:310,n:"Garrett Wilson",pos:"WR",tm:"NYJ",ytd:201.9,avg:18.4,proj:16.2,st:"Healthy" },
-  { id:311,n:"Brian Thomas Jr.",pos:"WR",tm:"JAX",ytd:196.3,avg:17.8,proj:15.7,st:"Healthy" },
-  { id:312,n:"Terry McLaurin",pos:"WR",tm:"WAS",ytd:192.7,avg:17.5,proj:15.4,st:"Healthy" },
-  { id:313,n:"Tyreek Hill",pos:"WR",tm:"MIA",ytd:188.4,avg:17.1,proj:15.0,st:"Healthy" },
-  { id:314,n:"DK Metcalf",pos:"WR",tm:"SEA",ytd:182.1,avg:16.6,proj:14.5,st:"Healthy" },
-  { id:315,n:"Mike Evans",pos:"WR",tm:"TB",ytd:178.9,avg:16.3,proj:14.2,st:"Healthy" },
-  { id:316,n:"Davante Adams",pos:"WR",tm:"NYJ",ytd:174.6,avg:15.9,proj:13.8,st:"Healthy" },
-  { id:317,n:"Stefon Diggs",pos:"WR",tm:"HOU",ytd:168.3,avg:15.3,proj:13.4,st:"IR" },
-  { id:318,n:"Jaylen Waddle",pos:"WR",tm:"MIA",ytd:162.8,avg:14.8,proj:13.0,st:"Healthy" },
+  // WRs (top 24 finishers)
+  { id:301,n:"Puka Nacua",pos:"WR",tm:"LAR",ytd:375.0,avg:23.4,proj:19.8,st:"Healthy" },
+  { id:302,n:"Jaxon Smith-Njigba",pos:"WR",tm:"SEA",ytd:359.9,avg:21.2,proj:18.6,st:"Healthy" },
+  { id:303,n:"Ja'Marr Chase",pos:"WR",tm:"CIN",ytd:348.2,avg:20.5,proj:21.4,st:"Healthy" },
+  { id:304,n:"Justin Jefferson",pos:"WR",tm:"MIN",ytd:324.8,avg:19.1,proj:20.8,st:"Healthy" },
+  { id:305,n:"Amon-Ra St. Brown",pos:"WR",tm:"DET",ytd:308.4,avg:18.1,proj:18.9,st:"Healthy" },
+  { id:306,n:"CeeDee Lamb",pos:"WR",tm:"DAL",ytd:298.6,avg:17.6,proj:19.7,st:"Healthy" },
+  { id:307,n:"Nico Collins",pos:"WR",tm:"HOU",ytd:278.4,avg:18.6,proj:17.8,st:"Healthy" },
+  { id:308,n:"A.J. Brown",pos:"WR",tm:"PHI",ytd:268.9,avg:15.8,proj:18.2,st:"Healthy" },
+  { id:309,n:"Drake London",pos:"WR",tm:"ATL",ytd:262.1,avg:15.4,proj:17.1,st:"Healthy" },
+  { id:310,n:"Brian Thomas Jr.",pos:"WR",tm:"JAC",ytd:256.8,avg:15.1,proj:16.4,st:"Healthy" },
+  { id:311,n:"Malik Nabers",pos:"WR",tm:"NYG",ytd:248.3,avg:17.7,proj:16.8,st:"Healthy" },
+  { id:312,n:"Terry McLaurin",pos:"WR",tm:"WAS",ytd:238.9,avg:14.1,proj:15.2,st:"Healthy" },
+  { id:313,n:"Garrett Wilson",pos:"WR",tm:"NYJ",ytd:232.4,avg:13.7,proj:15.9,st:"Healthy" },
+  { id:314,n:"Tee Higgins",pos:"WR",tm:"CIN",ytd:226.8,avg:15.1,proj:15.3,st:"Healthy" },
+  { id:315,n:"DK Metcalf",pos:"WR",tm:"PIT",ytd:219.4,avg:12.9,proj:14.6,st:"Healthy" },
+  { id:316,n:"Mike Evans",pos:"WR",tm:"TB",ytd:214.6,avg:14.3,proj:14.2,st:"Healthy" },
+  { id:317,n:"DJ Moore",pos:"WR",tm:"CHI",ytd:208.7,avg:12.3,proj:13.8,st:"Healthy" },
+  { id:318,n:"Courtland Sutton",pos:"WR",tm:"DEN",ytd:204.2,avg:12.0,proj:13.1,st:"Healthy" },
+  { id:319,n:"Tyreek Hill",pos:"WR",tm:"MIA",ytd:198.6,avg:11.7,proj:16.4,st:"Healthy" },
+  { id:320,n:"Davante Adams",pos:"WR",tm:"LAR",ytd:194.3,avg:11.4,proj:13.9,st:"Healthy" },
+  { id:321,n:"DeVonta Smith",pos:"WR",tm:"PHI",ytd:189.7,avg:11.2,proj:13.6,st:"Healthy" },
+  { id:322,n:"Rashee Rice",pos:"WR",tm:"KC",ytd:182.4,avg:15.2,proj:14.8,st:"Healthy" },
+  { id:323,n:"Jaylen Waddle",pos:"WR",tm:"MIA",ytd:176.8,avg:10.4,proj:12.9,st:"Healthy" },
+  { id:324,n:"Stefon Diggs",pos:"WR",tm:"NE",ytd:168.2,avg:14.0,proj:13.2,st:"IR" },
 
-  { id:401,n:"Brock Bowers",pos:"TE",tm:"LV",ytd:218.6,avg:19.9,proj:16.8,st:"Healthy" },
-  { id:402,n:"Trey McBride",pos:"TE",tm:"ARI",ytd:192.4,avg:17.5,proj:14.9,st:"Healthy" },
-  { id:403,n:"George Kittle",pos:"TE",tm:"SF",ytd:186.2,avg:16.9,proj:14.3,st:"Healthy" },
-  { id:404,n:"Travis Kelce",pos:"TE",tm:"KC",ytd:174.8,avg:15.9,proj:13.5,st:"Healthy" },
-  { id:405,n:"Sam LaPorta",pos:"TE",tm:"DET",ytd:162.3,avg:14.8,proj:12.7,st:"Healthy" },
-  { id:406,n:"Mark Andrews",pos:"TE",tm:"BAL",ytd:154.7,avg:14.1,proj:12.1,st:"Healthy" },
-  { id:407,n:"T.J. Hockenson",pos:"TE",tm:"MIN",ytd:142.8,avg:13.0,proj:11.4,st:"Healthy" },
-  { id:408,n:"Jake Ferguson",pos:"TE",tm:"DAL",ytd:128.4,avg:11.7,proj:10.5,st:"Healthy" },
+  // TEs (top 10 finishers)
+  { id:401,n:"Brock Bowers",pos:"TE",tm:"LV",ytd:268.4,avg:15.8,proj:14.8,st:"Healthy" },
+  { id:402,n:"Trey McBride",pos:"TE",tm:"ARI",ytd:238.6,avg:14.0,proj:13.5,st:"Healthy" },
+  { id:403,n:"George Kittle",pos:"TE",tm:"SF",ytd:216.3,avg:15.4,proj:13.9,st:"Healthy" },
+  { id:404,n:"Sam LaPorta",pos:"TE",tm:"DET",ytd:198.7,avg:11.7,proj:12.4,st:"Healthy" },
+  { id:405,n:"Travis Kelce",pos:"TE",tm:"KC",ytd:189.4,avg:11.1,proj:12.1,st:"Healthy" },
+  { id:406,n:"Mark Andrews",pos:"TE",tm:"BAL",ytd:176.8,avg:10.4,proj:11.8,st:"Healthy" },
+  { id:407,n:"T.J. Hockenson",pos:"TE",tm:"MIN",ytd:168.2,avg:9.9,proj:11.3,st:"Healthy" },
+  { id:408,n:"Jake Ferguson",pos:"TE",tm:"DAL",ytd:158.6,avg:9.3,proj:10.4,st:"Healthy" },
+  { id:409,n:"Tucker Kraft",pos:"TE",tm:"GB",ytd:152.3,avg:9.0,proj:10.2,st:"Healthy" },
+  { id:410,n:"Dalton Kincaid",pos:"TE",tm:"BUF",ytd:142.8,avg:8.4,proj:9.8,st:"Healthy" },
 
-  { id:501,n:"Brandon Aubrey",pos:"K",tm:"DAL",ytd:142.8,avg:13.0,proj:11.0,st:"Healthy" },
-  { id:502,n:"Ka'imi Fairbairn",pos:"K",tm:"HOU",ytd:134.2,avg:12.2,proj:10.5,st:"Healthy" },
-  { id:503,n:"Chris Boswell",pos:"K",tm:"PIT",ytd:132.6,avg:12.1,proj:10.3,st:"Healthy" },
-  { id:504,n:"Harrison Butker",pos:"K",tm:"KC",ytd:128.9,avg:11.7,proj:10.0,st:"Healthy" },
+  // Ks (top 6)
+  { id:501,n:"Brandon Aubrey",pos:"K",tm:"DAL",ytd:168.4,avg:9.9,proj:10.6,st:"Healthy" },
+  { id:502,n:"Cameron Dicker",pos:"K",tm:"LAC",ytd:154.2,avg:9.1,proj:10.1,st:"Healthy" },
+  { id:503,n:"Chris Boswell",pos:"K",tm:"PIT",ytd:148.6,avg:8.7,proj:9.8,st:"Healthy" },
+  { id:504,n:"Ka'imi Fairbairn",pos:"K",tm:"HOU",ytd:142.3,avg:8.4,proj:9.4,st:"Healthy" },
+  { id:505,n:"Harrison Butker",pos:"K",tm:"KC",ytd:138.7,avg:8.2,proj:9.2,st:"Healthy" },
+  { id:506,n:"Tyler Bass",pos:"K",tm:"BUF",ytd:132.4,avg:7.8,proj:8.9,st:"Healthy" },
 
-  { id:601,n:"Denver Broncos",pos:"DEF",tm:"DEN",ytd:148.6,avg:13.5,proj:11.2,st:"Healthy" },
-  { id:602,n:"Baltimore Ravens",pos:"DEF",tm:"BAL",ytd:138.4,avg:12.6,proj:10.8,st:"Healthy" },
-  { id:603,n:"Minnesota Vikings",pos:"DEF",tm:"MIN",ytd:132.8,avg:12.1,proj:10.4,st:"Healthy" },
-  { id:604,n:"Pittsburgh Steelers",pos:"DEF",tm:"PIT",ytd:128.2,avg:11.7,proj:10.1,st:"Healthy" },
+  // DEFs (top 6)
+  { id:601,n:"Denver Broncos",pos:"DEF",tm:"DEN",ytd:168.4,avg:9.9,proj:10.8,st:"Healthy" },
+  { id:602,n:"Baltimore Ravens",pos:"DEF",tm:"BAL",ytd:148.6,avg:8.7,proj:10.2,st:"Healthy" },
+  { id:603,n:"Pittsburgh Steelers",pos:"DEF",tm:"PIT",ytd:142.3,avg:8.4,proj:9.8,st:"Healthy" },
+  { id:604,n:"Minnesota Vikings",pos:"DEF",tm:"MIN",ytd:138.9,avg:8.2,proj:9.4,st:"Healthy" },
+  { id:605,n:"Philadelphia Eagles",pos:"DEF",tm:"PHI",ytd:132.4,avg:7.8,proj:9.2,st:"Healthy" },
+  { id:606,n:"Houston Texans",pos:"DEF",tm:"HOU",ytd:128.7,avg:7.6,proj:8.9,st:"Healthy" },
 ];
 
 const ROSTERS = {
-  1:  { st:[102,201,204,301,305,401,208,501,601], bn:[105,211,308,405,502,602] },
-  2:  { st:[101,202,205,302,306,402,212,504,602], bn:[106,213,310,406,503,603] },
-  3:  { st:[103,203,206,303,307,403,210,502,603], bn:[107,214,311,407,504,604] },
-  4:  { st:[104,207,209,304,309,404,215,503,604], bn:[108,312,313,408,501,601] },
-  5:  { st:[106,210,213,308,311,405,207,501,601], bn:[109,215,314,406,503,603] },
-  6:  { st:[107,211,214,310,312,406,209,502,602], bn:[110,315,316,407,504,604] },
-  7:  { st:[108,212,215,313,314,407,206,503,603], bn:[101,317,318,408,501,601] },
-  8:  { st:[109,208,209,311,315,408,214,504,604], bn:[110,212,316,401,502,602] },
-  9:  { st:[110,213,214,316,317,405,205,501,601], bn:[105,215,318,402,503,603] },
-  10: { st:[107,207,215,318,312,406,208,502,602], bn:[108,211,313,403,504,604] },
+  // Kos - built around McCaffrey, Chase, Bowers
+  1:  { st:[109, 201, 203, 303, 307, 401, 209, 501, 601], bn:[105, 213, 309, 404, 502, 602] },
+  2:  { st:[101, 202, 205, 302, 305, 402, 214, 502, 602], bn:[110, 215, 310, 405, 503, 603] },
+  3:  { st:[110, 204, 206, 301, 306, 403, 211, 503, 603], bn:[107, 216, 311, 406, 504, 604] },
+  4:  { st:[102, 207, 210, 304, 308, 404, 218, 504, 604], bn:[108, 312, 313, 407, 501, 605] },
+  5:  { st:[103, 208, 211, 309, 314, 404, 207, 501, 601], bn:[104, 219, 315, 406, 503, 603] },
+  6:  { st:[107, 212, 213, 310, 311, 405, 210, 502, 602], bn:[106, 316, 317, 407, 504, 604] },
+  7:  { st:[108, 214, 216, 313, 315, 407, 206, 503, 603], bn:[101, 318, 319, 408, 501, 605] },
+  8:  { st:[104, 217, 218, 312, 316, 408, 215, 504, 604], bn:[102, 220, 320, 402, 502, 606] },
+  9:  { st:[106, 215, 219, 317, 319, 406, 212, 505, 605], bn:[109, 220, 321, 409, 506, 606] },
+  10: { st:[112, 216, 220, 320, 321, 409, 217, 506, 606], bn:[103, 214, 322, 410, 505, 605] },
 };
 
 const MATCHUPS = [
@@ -258,6 +315,61 @@ const MATCHUPS = [
   { h:5, a:6,  hs:94.3,  as:101.7 },
   { h:7, a:8,  hs:87.6,  as:92.1  },
   { h:9, a:10, hs:79.4,  as:84.8  },
+];
+
+// Claude's 2026 Draft Board - ranked for 10-team PPR
+// Based on 2025 production, 2026 workload/situation, age, and injury risk
+const DRAFT_BOARD = [
+  { rank:1,  pid:201, tier:1, note:"Best RB in football. Age creeping up but still the clear 1.01 in PPR." },
+  { rank:2,  pid:303, tier:1, note:"Elite WR1 with Burrow throwing. Target share monster, TD upside." },
+  { rank:3,  pid:301, tier:1, note:"Led all WRs in 2025. Volume + Stafford makes him a top-3 lock." },
+  { rank:4,  pid:302, tier:1, note:"Breakout 2025. Seattle offense funnels through him. WR1 ceiling again." },
+  { rank:5,  pid:202, tier:2, note:"Workhorse in a top offense. Dual-threat = PPR gold." },
+  { rank:6,  pid:203, tier:2, note:"Elite pass-catching RB. PPR floor is massive." },
+  { rank:7,  pid:304, tier:2, note:"Vikings WR1. Target hog with a QB upgrade potential." },
+  { rank:8,  pid:305, tier:2, note:"Reception king. 100+ catches is his floor in PPR." },
+  { rank:9,  pid:204, tier:2, note:"Breakout 2025. Colts funnel him touches. Might slide but don't let him." },
+  { rank:10, pid:306, tier:2, note:"Dallas WR1. Can carry you when Dak is hot. Slight regression from 2024." },
+  { rank:11, pid:307, tier:3, note:"Houston WR1. Efficient, contested-catch beast." },
+  { rank:12, pid:205, tier:3, note:"Workhorse in Philly. Age concern but 2025 showed he still has it." },
+  { rank:13, pid:401, tier:3, note:"Positional cheat code at TE. Smash pick in round 2-3." },
+  { rank:14, pid:308, tier:3, note:"Hurts' favorite. Red zone machine. Floor play." },
+  { rank:15, pid:309, tier:3, note:"ATL alpha WR. Consistent target volume." },
+  { rank:16, pid:207, tier:3, note:"Explosive but injury history. High ceiling RB2." },
+  { rank:17, pid:310, tier:3, note:"Jacksonville's WR1 for the Lawrence era. Breakout pedigree." },
+  { rank:18, pid:311, tier:3, note:"Alpha target in NY. Volume is elite when healthy." },
+  { rank:19, pid:206, tier:3, note:"Still runs angry. TD upside carries the floor." },
+  { rank:20, pid:208, tier:4, note:"Workhorse but LAR offense pass-heavy. RB2 with RB1 weeks." },
+  { rank:21, pid:101, tier:4, note:"QB1 overall in 2025. Wait on QB but if he falls, snag him." },
+  { rank:22, pid:209, tier:4, note:"Efficient + receiving work. Sophomore breakout real." },
+  { rank:23, pid:312, tier:4, note:"McLaurin is target glue in WAS offense." },
+  { rank:24, pid:313, tier:4, note:"NYJ target hog if QB play improves." },
+  { rank:25, pid:402, tier:4, note:"TE2 ceiling. Safe target share in ARI." },
+  { rank:26, pid:210, tier:4, note:"Solid RB2 in GB. Goal line work locks the floor." },
+  { rank:27, pid:211, tier:4, note:"CIN workhorse upside. High variance week-to-week." },
+  { rank:28, pid:314, tier:4, note:"Higgins as WR2 next to Chase — TDs come bunched." },
+  { rank:29, pid:102, tier:5, note:"Maye breakout real. Elite late-round QB." },
+  { rank:30, pid:103, tier:5, note:"Stafford + McVay = still works. Sneaky QB value." },
+  { rank:31, pid:212, tier:5, note:"Cook is a TD-or-bust RB2." },
+  { rank:32, pid:315, tier:5, note:"Metcalf in PIT could boom with Aaron Rodgers throwing to him." },
+  { rank:33, pid:403, tier:5, note:"Kittle when healthy = elite. Age/injury tax." },
+  { rank:34, pid:316, tier:5, note:"Evans is automatic 1,000 yards and 10 TDs. Cap on upside." },
+  { rank:35, pid:104, tier:5, note:"Lawrence had a top-5 QB finish. Still undervalued in drafts." },
+  { rank:36, pid:317, tier:6, note:"DJ Moore — veteran target share, low ceiling." },
+  { rank:37, pid:213, tier:6, note:"K9 when healthy = RB2 stretch. Questionable tag concerning." },
+  { rank:38, pid:214, tier:6, note:"Hall still has juice. Offense limits the ceiling." },
+  { rank:39, pid:318, tier:6, note:"Sutton is DEN's WR1 until proven otherwise." },
+  { rank:40, pid:404, tier:6, note:"LaPorta bounces back with more usage." },
+  { rank:41, pid:319, tier:6, note:"Tyreek still fast but decline started. Buy-low." },
+  { rank:42, pid:105, tier:6, note:"Dak as QB2 upside. Dallas pass volume high." },
+  { rank:43, pid:215, tier:7, note:"Aaron Jones as handcuff-heavy RB2." },
+  { rank:44, pid:320, tier:7, note:"Adams to LAR reunion with Stafford. Low-floor but TDs." },
+  { rank:45, pid:405, tier:7, note:"Kelce hanging on. Still gets targets in KC." },
+  { rank:46, pid:111, tier:7, note:"Mahomes always safe. Weapons limited in 2025." },
+  { rank:47, pid:321, tier:7, note:"DeVonta Smith is slot-only but Hurts trusts him." },
+  { rank:48, pid:216, tier:7, note:"Pollard gets volume but splits work." },
+  { rank:49, pid:406, tier:7, note:"Andrews' workload slipped but TD floor is real." },
+  { rank:50, pid:322, tier:7, note:"Rashee Rice — if he stays on the field, WR2 upside." },
 ];
 
 const SLOTS = ["QB","RB","RB","WR","WR","TE","FLEX","K","DEF"];
@@ -497,6 +609,58 @@ function WatchlistView({ watchlist, toggleWatch }) {
   );
 }
 
+function DraftBoardView() {
+  const tierLabels = {
+    1: "TIER 1 — ELITE / FIRST ROUND LOCKS",
+    2: "TIER 2 — ROUND 1-2 CORNERSTONES",
+    3: "TIER 3 — ROUND 3-4 BUILDERS",
+    4: "TIER 4 — ROUND 4-6 VALUE",
+    5: "TIER 5 — ROUND 6-8 UPSIDE",
+    6: "TIER 6 — ROUND 8-10 DEPTH",
+    7: "TIER 7 — LATE ROUND DART THROWS",
+  };
+
+  return (
+    <div>
+      <div className="hero" style={{background:"linear-gradient(135deg, #422006 0%, #78350f 100%)"}}>
+        <div className="hero-label" style={{color:"#fcd34d"}}>2026 DRAFT BOARD</div>
+        <div className="hero-name">Top 50 PPR Rankings</div>
+        <div style={{fontSize:13, color:"#fde68a", marginTop:10, lineHeight:1.5}}>
+          My rankings for a 10-team PPR draft, based on 2025 season-end production,
+          2026 workload projections, age, and injury risk. Tiers grouped by round value.
+        </div>
+      </div>
+
+      <div className="card" style={{padding:0, overflow:"hidden"}}>
+        {DRAFT_BOARD.map((d, i) => {
+          const p = gp(d.pid);
+          if (!p) return null;
+          const showTier = i === 0 || DRAFT_BOARD[i - 1].tier !== d.tier;
+          return (
+            <div key={d.rank}>
+              {showTier && (
+                <div className={"tier-banner t" + d.tier}>{tierLabels[d.tier]}</div>
+              )}
+              <div className="draft-row">
+                <div className={"draft-rank t" + d.tier}>{d.rank}</div>
+                <div className="draft-body">
+                  <div className="draft-head">
+                    <span className={"pos-badge pos-" + p.pos}>{p.pos}</span>
+                    <span className="draft-name">{p.n}</span>
+                    <span style={{fontSize:12, color:"#6b7280"}}>{p.tm}</span>
+                    <span className="draft-ytd">2025: {p.ytd.toFixed(1)} pts ({p.avg.toFixed(1)} avg)</span>
+                  </div>
+                  <div className="draft-note">{d.note}</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [tab, setTab] = useState("team");
   const [watchlist, setWatchlist] = useState([]);
@@ -510,6 +674,7 @@ function App() {
     { id: "matchups",  label: "Matchups" },
     { id: "standings", label: "Standings" },
     { id: "players",   label: "Players" },
+    { id: "draft",     label: "Draft Board" },
     { id: "watchlist", label: "Watchlist" + (watchlist.length ? ` (${watchlist.length})` : "") },
   ];
 
@@ -532,9 +697,10 @@ function App() {
       {tab === "matchups"  && <MatchupsView />}
       {tab === "standings" && <StandingsView />}
       {tab === "players"   && <PlayersView watchlist={watchlist} toggleWatch={toggleWatch} />}
+      {tab === "draft"     && <DraftBoardView />}
       {tab === "watchlist" && <WatchlistView watchlist={watchlist} toggleWatch={toggleWatch} />}
       <div className="footer">
-        {LEAGUE.name} • {LEAGUE.teams} teams • {LEAGUE.scoring} scoring • Mock data (Sleeper API integration pending)
+        {LEAGUE.name} • {LEAGUE.teams} teams • {LEAGUE.scoring} scoring • 2025 season-end stats (Sleeper API integration pending)
       </div>
     </div>
   );
